@@ -142,13 +142,17 @@
   // ---- Commission ----
 
   var soldInput = $('sold');
+  var downInput = $('down');
 
-  // The sold price typed in, or the retail price when it's left empty. NaN if it isn't a price.
-  function soldPrice(retail) {
-    var raw = soldInput.value.replace(/[$,\s]/g, '');
-    if (raw === '') return retail;
+  // A dollar amount typed into `input`, or `empty` when it's left empty. NaN if it isn't a price.
+  function readMoney(input, empty) {
+    var raw = input.value.replace(/[$,\s]/g, '');
+    if (raw === '') return empty;
     return /^\d*\.?\d*$/.test(raw) && raw !== '.' ? Number(raw) : NaN;
   }
+
+  // The sold price typed in, or the retail price when it's left empty.
+  function soldPrice(retail) { return readMoney(soldInput, retail); }
 
   function line(label, amount, cls) {
     return el('tr', cls ? { class: cls } : {}, [el('td', { text: label }), el('td', { class: 'num', text: amount })]);
@@ -161,10 +165,18 @@
     $('sold-err').textContent = badSold ? 'Enter a dollar amount, like 1200 or 1,200.50' : '';
     soldInput.setAttribute('aria-invalid', badSold ? 'true' : 'false');
     var financed = form.querySelector('input[name=payment]:checked').value === 'financed';
-    var c = window.LHWS_COMMISSION(retail, badSold ? 0 : sold, financed);
-    lastCommission = { tier: c.tier, retail: retail, sold: c.sold, financed: financed, amount: c.amount };
+    $('down-box').hidden = !financed;
+    var down = financed ? readMoney(downInput, 0) : 0;
+    var downMsg = '';
+    if (isNaN(down)) downMsg = 'Enter a dollar amount, like 1200 or 1,200.50';
+    else if (!badSold && down > sold) downMsg = "The down payment can't be more than the sold price.";
+    $('down-err').textContent = downMsg;
+    downInput.setAttribute('aria-invalid', downMsg ? 'true' : 'false');
+    var badDown = !!downMsg;
+    var c = window.LHWS_COMMISSION(retail, badSold ? 0 : sold, financed, badDown ? 0 : down);
+    lastCommission = { tier: c.tier, retail: retail, sold: c.sold, financed: financed, down: c.down, badDown: badDown, amount: c.amount };
     $('pay-help').textContent = financed
-      ? pct(C.financeFee) + ' of the sold price comes off before the commission is worked out.'
+      ? pct(C.financeFee) + ' of the financed part (sold price minus the down payment) comes off before the commission is worked out.'
       : 'Paid in full; the commission is worked out on the whole sold price.';
 
     $('c-retail').textContent = money(retail);
@@ -174,7 +186,7 @@
     $('bar-comm').textContent = money(c.amount);
     var custom = soldInput.value.trim() !== '' && !badSold;
     $('sub-comm').textContent = (custom ? 'If sold at ' + money(c.sold) : 'If sold at retail') +
-      (financed ? ', financed' : ', paid upfront');
+      (financed ? ', financed' + (c.down > 0 ? ' with ' + money(c.down) + ' down' : '') : ', paid upfront');
 
     var rows = $('c-lines');
     rows.textContent = '';
@@ -182,7 +194,11 @@
     if (c.tier !== 'none') {
       rows.appendChild(line('Sold price (' + pct(c.sold / retail) + ' of retail)', money(c.sold)));
       if (financed) {
-        rows.appendChild(line('Financing: ' + pct(C.financeFee) + ' off', '−' + money(c.fee)));
+        if (c.down > 0) {
+          rows.appendChild(line('Down payment (no financing % off)', money(c.down)));
+          rows.appendChild(line('Financed part', money(c.sold - c.down)));
+        }
+        rows.appendChild(line('Financing: ' + pct(C.financeFee) + ' off' + (c.down > 0 ? ' the financed part' : ''), '−' + money(c.fee)));
         rows.appendChild(line('Commission figured on (' + pct(c.net / retail) + ' of retail)', money(c.net), 'sub-total'));
       }
       rows.appendChild(line('PAR (' + pct(FORM.calc.parRate) + ' of retail + ' + money(FORM.calc.adminFee) + ' admin fee)', money(c.par)));
@@ -218,7 +234,7 @@
         ': ' + pct(C.midRate) + ' of the sold price.'],
       ['over', 'Sold above PAR' + (r ? ' (over ' + money(c.par) + ')' : '') + ': ' + pct(C.midRate) + ' of PAR plus ' +
         pct(C.overRate) + ' of every dollar above PAR, including every dollar above retail.'],
-      ['finance', 'Financed jobs: ' + pct(C.financeFee) + ' of the sold price comes off first, then the rules above apply.'],
+      ['finance', 'Financed jobs: ' + pct(C.financeFee) + ' of the financed part (sold price minus any down payment) comes off first, then the rules above apply. No ' + pct(C.financeFee) + ' comes off the down payment.'],
     ].forEach(function (t) {
       var on = t[0] === c.tier || (t[0] === 'finance' && financed && c.tier !== 'none');
       tiers.appendChild(el('li', on ? { class: 'current', text: t[1] } : { text: t[1] }));
@@ -255,9 +271,11 @@
       update();
     });
   });
-  soldInput.addEventListener('blur', function () {
-    var v = soldPrice(0);
-    if (soldInput.value.trim() !== '' && !isNaN(v)) soldInput.value = v.toFixed(2);
+  [soldInput, downInput].forEach(function (input) {
+    input.addEventListener('blur', function () {
+      var v = readMoney(input, 0);
+      if (input.value.trim() !== '' && !isNaN(v)) input.value = v.toFixed(2);
+    });
   });
 
   // ---- Saved sales (kept in this browser only) ----
@@ -316,12 +334,20 @@
       status.className = 'status bad';
       return;
     }
+    if (c.badDown) {
+      status.textContent = 'Fix the down payment first.';
+      status.className = 'status bad';
+      return;
+    }
     var list = readSales();
-    list.push({
+    var sale = {
       id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
       date: date, note: $('sale-note').value.trim(), items: quotedItems(),
       retail: c.retail, sold: c.sold, financed: c.financed, commission: c.amount,
-    });
+    };
+    // Added later: sales saved before down payments existed simply don't have it.
+    if (c.financed && c.down > 0) sale.downPayment = c.down;
+    list.push(sale);
     if (!writeSales(list)) {
       status.textContent = "Couldn't save: this browser is blocking storage (a private window?).";
       status.className = 'status bad';
@@ -355,7 +381,7 @@
         renderSales();
       });
       if (armedDelete === s.id) { del.textContent = 'Tap again to delete'; del.classList.add('armed'); }
-      var detail = 'Sold ' + money(s.sold) + ' · Retail ' + money(s.retail) + ' · ' + (s.financed ? 'Financed' : 'Upfront');
+      var detail = 'Sold ' + money(s.sold) + ' · Retail ' + money(s.retail) + ' · ' + (s.financed ? 'Financed' + (s.downPayment > 0 ? ' (' + money(s.downPayment) + ' down)' : '') : 'Upfront');
       ul.appendChild(el('li', {}, [
         el('div', { class: 'sale-top' }, [
           el('span', { class: 'sale-date', text: niceDate(s.date) + (s.note ? ' · ' + s.note : '') }),

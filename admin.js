@@ -379,7 +379,7 @@
     ['lowRate', 'Commission below the cutoff (% of sold price)'],
     ['midRate', 'Commission from cutoff to PAR (% of sold price, and % of PAR above it)'],
     ['overRate', 'Share of each dollar above PAR'],
-    ['financeFee', 'Taken off the sold price when financed'],
+    ['financeFee', 'Taken off the financed part (sold price minus down payment)'],
   ];
 
   // Everything that differs between `base` and `edit`, as lines for the review and the commit.
