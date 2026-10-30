@@ -185,12 +185,12 @@
         rows.appendChild(line('Financing: ' + pct(C.financeFee) + ' off', '−' + money(c.fee)));
         rows.appendChild(line('Commission figured on (' + pct(c.net / retail) + ' of retail)', money(c.net), 'sub-total'));
       }
-      rows.appendChild(line('Commission PAR (' + pct(C.parRate) + ' of retail)', money(c.par)));
+      rows.appendChild(line('PAR (' + pct(FORM.calc.parRate) + ' of retail + ' + money(FORM.calc.adminFee) + ' admin fee)', money(c.par)));
       var basis = financed ? 'amount after financing' : 'sold price';
       if (c.tier === 'over') {
         tier = c.net > retail ? 'Above retail' : 'Above PAR';
         rows.appendChild(line(pct(C.midRate) + ' of PAR', money(c.base)));
-        if (c.overRetail > 0) {
+        if (c.overRetail > 0 && c.over > c.overRetail) {
           rows.appendChild(line(pct(C.overRate) + ' of ' + money(retail - c.par) + ' from PAR up to retail', money(c.over - c.overRetail)));
           rows.appendChild(line(pct(C.overRate) + ' of ' + money(c.net - retail) + ' above retail', money(c.overRetail)));
         } else {
@@ -208,7 +208,7 @@
     $('c-tier').textContent = tier;
 
     var r = retail > 0;
-    $('c-tiers-title').textContent = "How it's paid (PAR here = " + pct(C.parRate) + ' of retail, no admin fee)';
+    $('c-tiers-title').textContent = "How it's paid (PAR = " + pct(FORM.calc.parRate) + ' of retail + ' + money(FORM.calc.adminFee) + ' admin fee)';
     var tiers = $('c-tiers');
     tiers.textContent = '';
     [

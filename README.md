@@ -18,8 +18,7 @@ Nothing is emailed or sent anywhere; **CLEAR FORM** just clears the page.
 ## Commission rules
 
 R = RETAIL from the Quote tab, S = the sold price (R if left empty; it can be above R).
-Commission PAR = 65% of R, with **no** admin fee (the PAR shown on the Quote tab includes the
-$500 admin fee; this one does not).
+PAR is the same PAR the Quote tab shows: 65% of R (35% off retail) plus the $500 admin fee.
 
 If the job is **financed**, 5% of S comes off first and the rules below use what's left (N = S − 5%).
 Paid **upfront**, N = S. R and PAR never change.
@@ -31,15 +30,15 @@ Paid **upfront**, N = S. R and PAR never change.
 | Above PAR | 8% of PAR + 50% of (N − PAR) |
 
 Above PAR that 50% covers every dollar, including dollars above retail; the Commission tab shows the part
-earned above retail on its own line.
+earned above retail on its own line. On small jobs (retail under about $1,429) PAR is above retail.
 
 Examples:
-- Listed at $1,000, sold at $1,200 upfront: 8% × $650 = $52, plus 50% × $550 = $275, so **$327**
-  (of which $100 is from the $200 above retail).
-- Listed at $10,000, sold at $10,000 financed: worked out on $9,500. 8% × $6,500 = $520, plus
-  50% × $3,000 = $1,500, so **$2,020** (upfront it would be $2,270).
+- Listed at $10,000, sold at $10,000 upfront: PAR $7,000. 8% × $7,000 = $560, plus 50% × $3,000 = $1,500,
+  so **$2,060**. Financed, it is worked out on $9,500: $560 + $1,250 = **$1,810**.
+- Tankless RO listed at $2,018, sold at $2,500 upfront: PAR $1,811.70. $144.94 + 50% × $688.30 = **$489.09**.
 
-The percentages live in `form-data.js` (`commission`) and can be changed on the admin page.
+The percentages live in `form-data.js` (`calc` for PAR, `commission` for the rest) and can be changed on the
+admin page.
 
 ## Files
 

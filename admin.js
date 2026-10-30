@@ -375,7 +375,6 @@
   }
 
   var COMMISSION_ROWS = [
-    ['parRate', 'Commission PAR % of RETAIL (no admin fee)'],
     ['lowCutoff', 'Lower cutoff % of RETAIL'],
     ['lowRate', 'Commission below the cutoff (% of sold price)'],
     ['midRate', 'Commission from cutoff to PAR (% of sold price, and % of PAR above it)'],

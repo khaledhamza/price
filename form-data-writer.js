@@ -71,11 +71,11 @@
       '  // PAR = RETAIL * parRate + adminFee; COST = RETAIL * costRate.',
       '  calc: { parRate: ' + num(c.parRate) + ', adminFee: ' + num(c.adminFee) + ', costRate: ' + num(c.costRate) + ' },',
       '',
-      '  // Commission on the price the job sold for. Commission PAR = RETAIL * parRate (no admin fee).',
+      '  // Commission on the price the job sold for, using the same PAR as above (RETAIL * parRate + adminFee).',
       '  // Sold below lowCutoff of RETAIL: lowRate of the sold price. From lowCutoff up to PAR: midRate of',
       '  // the sold price. Above PAR: midRate of PAR plus overRate of every dollar above PAR (above RETAIL too).',
       "  // Financed jobs: financeFee of the sold price comes off first, and the rules apply to what's left.",
-      '  commission: { parRate: ' + num(k.parRate) + ', lowCutoff: ' + num(k.lowCutoff) + ', lowRate: ' + num(k.lowRate) +
+      '  commission: { lowCutoff: ' + num(k.lowCutoff) + ', lowRate: ' + num(k.lowRate) +
         ', midRate: ' + num(k.midRate) + ', overRate: ' + num(k.overRate) + ', financeFee: ' + num(k.financeFee) + ' },',
       '};',
       '',
@@ -98,7 +98,7 @@
       'window.LHWS_COMMISSION = function (retail, sold, financed) {',
       '  var round2 = function (n) { return Math.round(n * 100) / 100; };',
       '  var c = window.LHWS_FORM.commission;',
-      '  var par = round2(retail * c.parRate);',
+      '  var par = round2(retail * window.LHWS_FORM.calc.parRate + window.LHWS_FORM.calc.adminFee);',
       '  var cutoff = round2(retail * c.lowCutoff);',
       '  var fee = financed ? round2(sold * c.financeFee) : 0;',
       '  var net = round2(sold - fee);',

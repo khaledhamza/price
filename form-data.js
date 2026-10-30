@@ -110,11 +110,11 @@ window.LHWS_FORM = {
   // PAR = RETAIL * parRate + adminFee; COST = RETAIL * costRate.
   calc: { parRate: 0.65, adminFee: 500, costRate: 0.5 },
 
-  // Commission on the price the job sold for. Commission PAR = RETAIL * parRate (no admin fee).
+  // Commission on the price the job sold for, using the same PAR as above (RETAIL * parRate + adminFee).
   // Sold below lowCutoff of RETAIL: lowRate of the sold price. From lowCutoff up to PAR: midRate of
   // the sold price. Above PAR: midRate of PAR plus overRate of every dollar above PAR (above RETAIL too).
   // Financed jobs: financeFee of the sold price comes off first, and the rules apply to what's left.
-  commission: { parRate: 0.65, lowCutoff: 0.55, lowRate: 0.05, midRate: 0.08, overRate: 0.5, financeFee: 0.05 },
+  commission: { lowCutoff: 0.55, lowRate: 0.05, midRate: 0.08, overRate: 0.5, financeFee: 0.05 },
 };
 
 // The three calculations, each rounded to 2 decimal places. With the numbers above:
@@ -135,7 +135,7 @@ window.LHWS_CALC = function (pickerTotal, numbers) {
 window.LHWS_COMMISSION = function (retail, sold, financed) {
   var round2 = function (n) { return Math.round(n * 100) / 100; };
   var c = window.LHWS_FORM.commission;
-  var par = round2(retail * c.parRate);
+  var par = round2(retail * window.LHWS_FORM.calc.parRate + window.LHWS_FORM.calc.adminFee);
   var cutoff = round2(retail * c.lowCutoff);
   var fee = financed ? round2(sold * c.financeFee) : 0;
   var net = round2(sold - fee);
