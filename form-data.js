@@ -112,8 +112,9 @@ window.LHWS_FORM = {
 
   // Commission on the price the job sold for. Commission PAR = RETAIL * parRate (no admin fee).
   // Sold below lowCutoff of RETAIL: lowRate of the sold price. From lowCutoff up to PAR: midRate of
-  // the sold price. Above PAR: midRate of PAR plus overRate of every dollar above PAR.
-  commission: { parRate: 0.65, lowCutoff: 0.55, lowRate: 0.05, midRate: 0.08, overRate: 0.5 },
+  // the sold price. Above PAR: midRate of PAR plus overRate of every dollar above PAR (above RETAIL too).
+  // Financed jobs: financeFee of the sold price comes off first, and the rules apply to what's left.
+  commission: { parRate: 0.65, lowCutoff: 0.55, lowRate: 0.05, midRate: 0.08, overRate: 0.5, financeFee: 0.05 },
 };
 
 // The three calculations, each rounded to 2 decimal places. With the numbers above:
@@ -129,24 +130,28 @@ window.LHWS_CALC = function (pickerTotal, numbers) {
   return { retail: retail, par: round2(retail * F.calc.parRate + F.calc.adminFee), cost: round2(retail * F.calc.costRate) };
 };
 
-// Commission for a job with this RETAIL that sold for `sold`, rounded to cents.
-window.LHWS_COMMISSION = function (retail, sold) {
+// Commission for a job with this RETAIL that sold for `sold` (financed or paid upfront), rounded to cents.
+// `overRetail` is the part of `over` earned on dollars above RETAIL.
+window.LHWS_COMMISSION = function (retail, sold, financed) {
   var round2 = function (n) { return Math.round(n * 100) / 100; };
   var c = window.LHWS_FORM.commission;
   var par = round2(retail * c.parRate);
   var cutoff = round2(retail * c.lowCutoff);
-  var out = { par: par, cutoff: cutoff, sold: round2(sold), tier: 'none', base: 0, over: 0, amount: 0 };
+  var fee = financed ? round2(sold * c.financeFee) : 0;
+  var net = round2(sold - fee);
+  var out = { par: par, cutoff: cutoff, sold: round2(sold), fee: fee, net: net, tier: 'none', base: 0, over: 0, overRetail: 0, amount: 0 };
   if (!(retail > 0) || !(sold > 0)) return out;
-  if (out.sold > par) {
+  if (net > par) {
     out.tier = 'over';
     out.base = round2(par * c.midRate);
-    out.over = round2((out.sold - par) * c.overRate);
-  } else if (out.sold >= cutoff) {
+    out.over = round2((net - par) * c.overRate);
+    out.overRetail = net > retail ? Math.min(out.over, round2((net - retail) * c.overRate)) : 0;
+  } else if (net >= cutoff) {
     out.tier = 'mid';
-    out.base = round2(out.sold * c.midRate);
+    out.base = round2(net * c.midRate);
   } else {
     out.tier = 'low';
-    out.base = round2(out.sold * c.lowRate);
+    out.base = round2(net * c.lowRate);
   }
   out.amount = round2(out.base + out.over);
   return out;

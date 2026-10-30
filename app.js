@@ -160,7 +160,11 @@
     var badSold = isNaN(sold);
     $('sold-err').textContent = badSold ? 'Enter a dollar amount, like 1200 or 1,200.50' : '';
     soldInput.setAttribute('aria-invalid', badSold ? 'true' : 'false');
-    var c = window.LHWS_COMMISSION(retail, badSold ? 0 : sold);
+    var financed = form.querySelector('input[name=payment]:checked').value === 'financed';
+    var c = window.LHWS_COMMISSION(retail, badSold ? 0 : sold, financed);
+    $('pay-help').textContent = financed
+      ? pct(C.financeFee) + ' of the sold price comes off before the commission is worked out.'
+      : 'Paid in full; the commission is worked out on the whole sold price.';
 
     $('c-retail').textContent = money(retail);
     $('c-empty').hidden = retail > 0;
@@ -168,24 +172,35 @@
     $('out-comm').textContent = money(c.amount);
     $('bar-comm').textContent = money(c.amount);
     var custom = soldInput.value.trim() !== '' && !badSold;
-    $('sub-comm').textContent = custom ? 'If sold at ' + money(c.sold) : 'If sold at retail';
+    $('sub-comm').textContent = (custom ? 'If sold at ' + money(c.sold) : 'If sold at retail') +
+      (financed ? ', financed' : ', paid upfront');
 
     var rows = $('c-lines');
     rows.textContent = '';
     var tier = '';
     if (c.tier !== 'none') {
       rows.appendChild(line('Sold price (' + pct(c.sold / retail) + ' of retail)', money(c.sold)));
+      if (financed) {
+        rows.appendChild(line('Financing: ' + pct(C.financeFee) + ' off', '−' + money(c.fee)));
+        rows.appendChild(line('Commission figured on (' + pct(c.net / retail) + ' of retail)', money(c.net), 'sub-total'));
+      }
       rows.appendChild(line('Commission PAR (' + pct(C.parRate) + ' of retail)', money(c.par)));
+      var basis = financed ? 'amount after financing' : 'sold price';
       if (c.tier === 'over') {
-        tier = 'Above PAR';
+        tier = c.net > retail ? 'Above retail' : 'Above PAR';
         rows.appendChild(line(pct(C.midRate) + ' of PAR', money(c.base)));
-        rows.appendChild(line(pct(C.overRate) + ' of ' + money(c.sold - c.par) + ' above PAR', money(c.over)));
+        if (c.overRetail > 0) {
+          rows.appendChild(line(pct(C.overRate) + ' of ' + money(retail - c.par) + ' from PAR up to retail', money(c.over - c.overRetail)));
+          rows.appendChild(line(pct(C.overRate) + ' of ' + money(c.net - retail) + ' above retail', money(c.overRetail)));
+        } else {
+          rows.appendChild(line(pct(C.overRate) + ' of ' + money(c.net - c.par) + ' above PAR', money(c.over)));
+        }
       } else if (c.tier === 'mid') {
         tier = 'Between ' + pct(C.lowCutoff) + ' of retail and PAR';
-        rows.appendChild(line(pct(C.midRate) + ' of sold price', money(c.base)));
+        rows.appendChild(line(pct(C.midRate) + ' of ' + basis, money(c.base)));
       } else {
         tier = 'Below ' + pct(C.lowCutoff) + ' of retail';
-        rows.appendChild(line(pct(C.lowRate) + ' of sold price', money(c.base)));
+        rows.appendChild(line(pct(C.lowRate) + ' of ' + basis, money(c.base)));
       }
       rows.appendChild(line('My commission', money(c.amount), 'total'));
     }
@@ -201,9 +216,11 @@
       ['mid', 'Sold from ' + pct(C.lowCutoff) + ' of retail up to PAR' + (r ? ' (' + money(c.cutoff) + ' to ' + money(c.par) + ')' : '') +
         ': ' + pct(C.midRate) + ' of the sold price.'],
       ['over', 'Sold above PAR' + (r ? ' (over ' + money(c.par) + ')' : '') + ': ' + pct(C.midRate) + ' of PAR plus ' +
-        pct(C.overRate) + ' of every dollar above PAR.'],
+        pct(C.overRate) + ' of every dollar above PAR, including every dollar above retail.'],
+      ['finance', 'Financed jobs: ' + pct(C.financeFee) + ' of the sold price comes off first, then the rules above apply.'],
     ].forEach(function (t) {
-      tiers.appendChild(el('li', t[0] === c.tier ? { class: 'current', text: t[1] } : { text: t[1] }));
+      var on = t[0] === c.tier || (t[0] === 'finance' && financed && c.tier !== 'none');
+      tiers.appendChild(el('li', on ? { class: 'current', text: t[1] } : { text: t[1] }));
     });
   }
 
@@ -232,7 +249,7 @@
     b.addEventListener('click', function () {
       var retail = totals().retail;
       var key = b.getAttribute('data-pct');
-      var c = window.LHWS_COMMISSION(retail, 0);
+      var c = window.LHWS_COMMISSION(retail, 0, false);
       soldInput.value = key === 'par' ? c.par.toFixed(2) : key === 'cutoff' ? c.cutoff.toFixed(2) : '';
       update();
     });
@@ -269,6 +286,7 @@
     if (!window.confirm('Clear the whole form?')) return;
     form.reset();
     form.querySelectorAll('.qty').forEach(function (q) { q.hidden = true; });
+    // form.reset() puts the payment choice back to Upfront.
     update();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });

@@ -11,7 +11,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" href="icons/favicon.png">
   <link rel="apple-touch-icon" href="icons/icon-180.png">
-  <link rel="stylesheet" href="styles.css?v=4">
+  <link rel="stylesheet" href="styles.css?v=5">
 </head>
 <body>
   <header class="top">
@@ -48,11 +48,19 @@
         </div>
         <p class="sub" id="sold-help">Leave empty if you sold at the retail price.</p>
         <p class="error" id="sold-err"></p>
-        <div class="quick" role="group" aria-label="Quick fill sold price">
+                <div class="quick" role="group" aria-label="Quick fill sold price">
           <button type="button" data-pct="1">Retail</button>
           <button type="button" data-pct="par">PAR (65%)</button>
           <button type="button" data-pct="cutoff">55%</button>
         </div>
+        <fieldset class="pay">
+          <legend class="q-label">Payment</legend>
+          <div class="seg">
+            <label><input type="radio" name="payment" value="upfront" checked><span>Upfront</span></label>
+            <label><input type="radio" name="payment" value="financed"><span>Financing</span></label>
+          </div>
+          <p class="sub" id="pay-help"></p>
+        </fieldset>
       </section>
 
       <section class="card comm-card" aria-live="polite">
@@ -78,7 +86,7 @@
     <div class="bar-comm"><span>COMMISSION</span><b id="bar-comm">$0.00</b></div>
   </div>
 
-  <script src="form-data.js?v=4"></script>
-  <script src="app.js?v=4"></script>
+  <script src="form-data.js?v=5"></script>
+  <script src="app.js?v=5"></script>
 </body>
 </html>

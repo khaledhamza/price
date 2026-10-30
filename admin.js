@@ -380,6 +380,7 @@
     ['lowRate', 'Commission below the cutoff (% of sold price)'],
     ['midRate', 'Commission from cutoff to PAR (% of sold price, and % of PAR above it)'],
     ['overRate', 'Share of each dollar above PAR'],
+    ['financeFee', 'Taken off the sold price when financed'],
   ];
 
   // Everything that differs between `base` and `edit`, as lines for the review and the commit.
@@ -471,7 +472,7 @@
     var check = W.loadFormData(text);
     if (JSON.stringify(check.form) !== JSON.stringify(edit)) throw new Error('the new price file did not read back the same');
     check.calc(0, {});
-    check.commission(1000, 1200);
+    check.commission(1000, 1200, true);
     return text;
   }
 

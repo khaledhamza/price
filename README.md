@@ -6,22 +6,34 @@ RETAIL / PAR / COST calculations, as a static site for GitHub Pages, plus:
 
 - **Quantities.** Every picked option gets a Qty stepper (1 to 99); its price counts once per unit.
 - **Commission, live.** Shown on the Quote tab and in the bottom bar (assuming the job sells at retail).
-- **Commission tab.** Enter the price the job actually sold for to see the commission and how it was worked out.
+- **Commission tab.** Enter the price the job actually sold for (above retail is fine) and whether it's paid
+  upfront or financed, to see the commission and how it was worked out.
 
 Nothing is emailed or sent anywhere; **CLEAR FORM** just clears the page.
 
 ## Commission rules
 
-R = RETAIL from the Quote tab, S = the sold price (R if left empty). Commission PAR = 65% of R,
-with **no** admin fee (the PAR shown on the Quote tab includes the $500 admin fee; this one does not).
+R = RETAIL from the Quote tab, S = the sold price (R if left empty; it can be above R).
+Commission PAR = 65% of R, with **no** admin fee (the PAR shown on the Quote tab includes the
+$500 admin fee; this one does not).
 
-| Sold price | Commission |
+If the job is **financed**, 5% of S comes off first and the rules below use what's left (N = S − 5%).
+Paid **upfront**, N = S. R and PAR never change.
+
+| N (sold price, after financing) | Commission |
 | --- | --- |
-| Below 55% of R | 5% of S |
-| 55% of R up to PAR | 8% of S |
-| Above PAR | 8% of PAR + 50% of (S − PAR) |
+| Below 55% of R | 5% of N |
+| 55% of R up to PAR | 8% of N |
+| Above PAR | 8% of PAR + 50% of (N − PAR) |
 
-Example: listed at $1,000, sold at $1,200. PAR = $650; 8% × $650 = $52; 50% × $550 = $275; commission **$327**.
+Above PAR that 50% covers every dollar, including dollars above retail; the Commission tab shows the part
+earned above retail on its own line.
+
+Examples:
+- Listed at $1,000, sold at $1,200 upfront: 8% × $650 = $52, plus 50% × $550 = $275, so **$327**
+  (of which $100 is from the $200 above retail).
+- Listed at $10,000, sold at $10,000 financed: worked out on $9,500. 8% × $6,500 = $520, plus
+  50% × $3,000 = $1,500, so **$2,020** (upfront it would be $2,270).
 
 The percentages live in `form-data.js` (`commission`) and can be changed on the admin page.
 
