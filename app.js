@@ -162,6 +162,7 @@
     soldInput.setAttribute('aria-invalid', badSold ? 'true' : 'false');
     var financed = form.querySelector('input[name=payment]:checked').value === 'financed';
     var c = window.LHWS_COMMISSION(retail, badSold ? 0 : sold, financed);
+    lastCommission = { tier: c.tier, retail: retail, sold: c.sold, financed: financed, amount: c.amount };
     $('pay-help').textContent = financed
       ? pct(C.financeFee) + ' of the sold price comes off before the commission is worked out.'
       : 'Paid in full; the commission is worked out on the whole sold price.';
@@ -259,6 +260,119 @@
     if (soldInput.value.trim() !== '' && !isNaN(v)) soldInput.value = v.toFixed(2);
   });
 
+  // ---- Saved sales (kept in this browser only) ----
+
+  var SALES_KEY = 'lhws-sales-v1';
+  var lastCommission = null; // the commission currently shown, with what it was worked out from
+
+  function readSales() {
+    try {
+      var list = JSON.parse(localStorage.getItem(SALES_KEY) || '[]');
+      return Array.isArray(list) ? list : [];
+    } catch (e) { return []; }
+  }
+  function writeSales(list) {
+    try { localStorage.setItem(SALES_KEY, JSON.stringify(list)); return true; } catch (e) { return false; }
+  }
+
+  function today() {
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  function niceDate(iso) {
+    var p = iso.split('-');
+    return new Date(+p[0], +p[1] - 1, +p[2]).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  // What was quoted, for the saved record: "STO Combo 1.5 ×2", "Trenching: 23".
+  function quotedItems() {
+    var items = [];
+    form.querySelectorAll('input[type=checkbox]:checked').forEach(function (c) {
+      var q = readQty($(c.id + '_qty'));
+      items.push(c.nextSibling.textContent + (q > 1 ? ' ×' + q : ''));
+    });
+    FORM.numbers.forEach(function (q) {
+      var raw = $('input_' + q.id).value;
+      if (raw !== '' && parseFloat(raw)) items.push(q.label + ': ' + parseFloat(raw));
+    });
+    return items;
+  }
+
+  $('sale-date').value = today();
+
+  $('save-sale-btn').addEventListener('click', function () {
+    var status = $('save-status');
+    var date = $('sale-date').value;
+    $('sale-date-err').textContent = date ? '' : 'Pick the date of the sale.';
+    if (!date) { $('sale-date').focus(); return; }
+    var c = lastCommission;
+    if (!c || c.tier === 'none') {
+      status.textContent = 'Nothing to save yet: add items on the Quote tab first.';
+      status.className = 'status bad';
+      return;
+    }
+    if (isNaN(soldPrice(c.retail))) {
+      status.textContent = 'Fix the sold price first.';
+      status.className = 'status bad';
+      return;
+    }
+    var list = readSales();
+    list.push({
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      date: date, note: $('sale-note').value.trim(), items: quotedItems(),
+      retail: c.retail, sold: c.sold, financed: c.financed, commission: c.amount,
+    });
+    if (!writeSales(list)) {
+      status.textContent = "Couldn't save: this browser is blocking storage (a private window?).";
+      status.className = 'status bad';
+      return;
+    }
+    $('sale-note').value = '';
+    status.textContent = 'Saved: ' + money(c.amount) + ' commission on ' + niceDate(date) + '.';
+    status.className = 'status ok';
+    renderSales();
+  });
+
+  var armedDelete = null;
+  function renderSales() {
+    var list = readSales().sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; });
+    var month = today().slice(0, 7);
+    var all = 0, thisMonth = 0;
+    var ul = $('sales-list');
+    ul.textContent = '';
+    list.forEach(function (s) {
+      all += s.commission;
+      if (s.date.slice(0, 7) === month) thisMonth += s.commission;
+      var del = el('button', { type: 'button', class: 'del-btn', text: 'Delete', 'aria-label': 'Delete sale of ' + niceDate(s.date) });
+      del.addEventListener('click', function () {
+        if (armedDelete !== s.id) {
+          armedDelete = s.id;
+          renderSales();
+          return;
+        }
+        armedDelete = null;
+        writeSales(readSales().filter(function (x) { return x.id !== s.id; }));
+        renderSales();
+      });
+      if (armedDelete === s.id) { del.textContent = 'Tap again to delete'; del.classList.add('armed'); }
+      var detail = 'Sold ' + money(s.sold) + ' · Retail ' + money(s.retail) + ' · ' + (s.financed ? 'Financed' : 'Upfront');
+      ul.appendChild(el('li', {}, [
+        el('div', { class: 'sale-top' }, [
+          el('span', { class: 'sale-date', text: niceDate(s.date) + (s.note ? ' · ' + s.note : '') }),
+          el('b', { class: 'sale-comm', text: money(s.commission) }),
+        ]),
+        el('p', { class: 'sub', text: detail }),
+        s.items && s.items.length ? el('p', { class: 'sale-items', text: s.items.join(', ') }) : null,
+        del,
+      ]));
+    });
+    all = Math.round(all * 100) / 100;
+    thisMonth = Math.round(thisMonth * 100) / 100;
+    $('sales-all').textContent = money(all);
+    $('sales-month').textContent = money(thisMonth);
+    $('sales-empty').hidden = list.length > 0;
+  }
+
   // ---- Tabs ----
 
   var tabs = [$('tab-quote'), $('tab-comm')];
@@ -286,10 +400,13 @@
     if (!window.confirm('Clear the whole form?')) return;
     form.reset();
     form.querySelectorAll('.qty').forEach(function (q) { q.hidden = true; });
+    $('sale-date').value = today();
+    $('save-status').textContent = '';
     // form.reset() puts the payment choice back to Upfront.
     update();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
   update();
+  renderSales();
 })();

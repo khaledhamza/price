@@ -11,7 +11,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" href="icons/favicon.png">
   <link rel="apple-touch-icon" href="icons/icon-180.png">
-  <link rel="stylesheet" href="styles.css?v=5">
+  <link rel="stylesheet" href="styles.css?v=6">
 </head>
 <body>
   <header class="top">
@@ -68,6 +68,28 @@
         <table class="breakdown"><tbody id="c-lines"></tbody></table>
       </section>
 
+      <section class="card save-sale" aria-labelledby="save-title">
+        <span class="q-label" id="save-title">Save this sale</span>
+        <p class="sub">Keeps this commission in My sales below, on this device.</p>
+        <label class="field-label" for="sale-date">Sale date</label>
+        <input type="date" id="sale-date" class="text-input" aria-describedby="sale-date-err">
+        <p class="error" id="sale-date-err"></p>
+        <label class="field-label" for="sale-note">Customer or note (optional)</label>
+        <input type="text" id="sale-note" class="text-input" autocomplete="off" maxlength="80" placeholder="e.g. Smith, 12 Oak St">
+        <button type="button" class="submit save-btn" id="save-sale-btn">Save sale</button>
+        <p class="status" id="save-status" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="card sales" aria-labelledby="sales-title">
+        <span class="q-label" id="sales-title">My sales</span>
+        <div class="sales-totals">
+          <div><span>This month</span><b id="sales-month">$0.00</b></div>
+          <div><span>All time</span><b id="sales-all">$0.00</b></div>
+        </div>
+        <p class="sub" id="sales-empty">No saved sales yet. Work out a commission above, then tap Save sale.</p>
+        <ul class="sales-list" id="sales-list"></ul>
+      </section>
+
       <section class="card">
         <span class="q-label" id="c-tiers-title">How it&#39;s paid</span>
         <ul class="tiers" id="c-tiers"></ul>
@@ -87,6 +109,6 @@
   </div>
 
   <script src="form-data.js?v=5"></script>
-  <script src="app.js?v=5"></script>
+  <script src="app.js?v=6"></script>
 </body>
 </html>

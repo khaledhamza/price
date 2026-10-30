@@ -8,6 +8,10 @@ RETAIL / PAR / COST calculations, as a static site for GitHub Pages, plus:
 - **Commission, live.** Shown on the Quote tab and in the bottom bar (assuming the job sells at retail).
 - **Commission tab.** Enter the price the job actually sold for (above retail is fine) and whether it's paid
   upfront or financed, to see the commission and how it was worked out.
+- **Saved sales.** On the Commission tab, enter the sale date (and a customer or note) and tap **Save sale**.
+  **My sales** lists every saved sale with its commission, plus totals for this month and all time.
+  Sales are kept in that phone's browser only (no server): they don't move between devices, and clearing
+  the browser's website data deletes them. On iPhone, Safari and a Home Screen icon keep separate lists.
 
 Nothing is emailed or sent anywhere; **CLEAR FORM** just clears the page.
 
