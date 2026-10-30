@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <title>LHWS Price Admin</title>
+  <meta name="theme-color" content="#161c4c">
+  <link rel="icon" type="image/png" href="icons/favicon.png">
+  <link rel="stylesheet" href="styles.css?v=4">
+  <link rel="stylesheet" href="admin.css?v=3">
+</head>
+<body class="admin">
+  <header class="top">
+    <img src="icons/icon-192.png" alt="" width="40" height="40">
+    <h1>LHWS Price Admin</h1>
+    <a class="top-link" href="./">Open form</a>
+  </header>
+
+  <main class="wrap">
+    <p id="load-status" class="status" role="status" aria-live="polite"></p>
+
+    <details class="card" id="access" hidden>
+      <summary><span class="q-label">GitHub access</span><span class="count" id="access-state"></span></summary>
+      <p class="sub">Saving updates the price file in the site's GitHub repository, so it needs a GitHub token
+        with write access to it. The token stays in this browser and is only sent to GitHub.</p>
+      <ol class="help">
+        <li>Open <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub → New fine-grained token</a>.</li>
+        <li>Repository access: <b>Only select repositories</b> → <b>price</b>.</li>
+        <li>Permissions → Repository → <b>Contents: Read and write</b>. Generate it and paste it here.</li>
+      </ol>
+      <label class="field">
+        <span>Token</span>
+        <input type="password" id="token" autocomplete="off" spellcheck="false" placeholder="github_pat_…">
+      </label>
+      <label class="check"><input type="checkbox" id="remember"> Remember on this device</label>
+      <button type="button" class="link-btn" id="forget">Forget token</button>
+    </details>
+
+    <form id="admin-form" novalidate hidden>
+      <section class="card">
+        <label class="field">
+          <span class="q-label">Price list name</span>
+          <input type="text" id="title" autocomplete="off">
+        </label>
+        <p class="error" id="title-error"></p>
+        <p class="sub">Shown at the top of the form and in the browser tab.</p>
+      </section>
+      <div id="pickers"></div>
+      <section class="card" id="numbers">
+        <span class="q-label">Per-unit rates</span>
+        <p class="sub">What each unit entered adds to RETAIL.</p>
+        <div id="number-rows"></div>
+      </section>
+      <section class="card" id="calc">
+        <span class="q-label">Totals</span>
+        <p class="sub">PAR = RETAIL × PAR % + admin fee. COST = RETAIL × COST %.</p>
+        <div id="calc-rows"></div>
+      </section>
+      <section class="card" id="commission">
+        <span class="q-label">Commission</span>
+        <p class="sub">Sold below the cutoff: that % of the sold price. From the cutoff up to PAR: the middle % of the
+          sold price. Above PAR: the middle % of PAR plus the share of every dollar above PAR.</p>
+        <div id="comm-rows"></div>
+      </section>
+    </form>
+
+    <section class="card review" id="review" hidden>
+      <span class="q-label">Review changes</span>
+      <ul id="change-list"></ul>
+      <p id="save-status" class="status" role="status" aria-live="polite"></p>
+      <button type="button" class="submit save" id="save-btn">Save to site</button>
+      <button type="button" class="secondary" id="download-btn">Download form-data.js instead</button>
+      <button type="button" class="link-btn" id="undo-btn">Undo all changes</button>
+    </section>
+  </main>
+
+  <div class="totals-bar admin-bar" id="admin-bar" hidden>
+    <span id="change-count">No changes</span>
+    <button type="button" id="review-btn" disabled>Review &amp; save</button>
+  </div>
+
+  <script src="form-data-writer.js?v=2"></script>
+  <script src="admin.js?v=6"></script>
+</body>
+</html>

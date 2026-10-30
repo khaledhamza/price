@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>LHWS PRICE APP - 01.01.2026</title>
+  <meta name="theme-color" content="#161c4c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="LHWS Price">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" href="icons/favicon.png">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <link rel="stylesheet" href="styles.css?v=4">
+</head>
+<body>
+  <header class="top">
+    <img src="icons/icon-192.png" alt="" width="40" height="40">
+    <h1 id="title">LHWS PRICE APP - 01.01.2026</h1>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Screens">
+    <button type="button" role="tab" id="tab-quote" aria-controls="panel-quote" aria-selected="true">Quote</button>
+    <button type="button" role="tab" id="tab-comm" aria-controls="panel-comm" aria-selected="false" tabindex="-1">Commission</button>
+  </nav>
+
+  <form id="price-form" novalidate>
+    <div id="panel-quote" role="tabpanel" aria-labelledby="tab-quote">
+      <div id="pickers"></div>
+      <div id="numbers"></div>
+      <hr class="divider">
+      <section class="card results" aria-label="Totals">
+        <div class="result"><div><span class="r-label" id="label-retail">RETAIL</span></div><output id="out-retail">$0.00</output></div>
+        <div class="result"><div><span class="r-label" id="label-par">PAR (8% commissionable)</span><span class="sub" id="sub-par">*Includes $500 admin fee</span></div><output id="out-par">$500.00</output></div>
+        <div class="result"><div><span class="r-label" id="label-cost">COST</span><span class="sub" id="sub-cost">*Account for CC/Finance fees</span></div><output id="out-cost">$0.00</output></div>
+        <div class="result comm-row"><div><span class="r-label">MY COMMISSION</span><span class="sub" id="sub-comm">If sold at retail</span></div><output id="out-comm">$0.00</output></div>
+        <button type="button" class="link-btn" id="go-comm">Sold at a different price? Open the Commission tab</button>
+      </section>
+    </div>
+
+    <div id="panel-comm" role="tabpanel" aria-labelledby="tab-comm" hidden>
+      <section class="card">
+        <div class="result"><div><span class="r-label">RETAIL (listed price)</span><span class="sub">Total from the Quote tab</span></div><output id="c-retail">$0.00</output></div>
+        <p class="error" id="c-empty">Add items on the Quote tab first.</p>
+        <label class="q-label sold-label" for="sold">Sold price</label>
+        <div class="money-input"><span aria-hidden="true">$</span>
+          <input type="text" id="sold" inputmode="decimal" autocomplete="off" placeholder="Same as retail" aria-describedby="sold-help sold-err">
+        </div>
+        <p class="sub" id="sold-help">Leave empty if you sold at the retail price.</p>
+        <p class="error" id="sold-err"></p>
+        <div class="quick" role="group" aria-label="Quick fill sold price">
+          <button type="button" data-pct="1">Retail</button>
+          <button type="button" data-pct="par">PAR (65%)</button>
+          <button type="button" data-pct="cutoff">55%</button>
+        </div>
+      </section>
+
+      <section class="card comm-card" aria-live="polite">
+        <div class="result big"><div><span class="r-label">MY COMMISSION</span><span class="sub" id="c-tier"></span></div><output id="c-amount">$0.00</output></div>
+        <table class="breakdown"><tbody id="c-lines"></tbody></table>
+      </section>
+
+      <section class="card">
+        <span class="q-label" id="c-tiers-title">How it&#39;s paid</span>
+        <ul class="tiers" id="c-tiers"></ul>
+      </section>
+    </div>
+
+    <div class="actions">
+      <button type="button" id="clear-btn" class="submit">CLEAR FORM</button>
+    </div>
+  </form>
+
+  <div class="totals-bar" aria-hidden="true">
+    <div><span>RETAIL</span><b id="bar-retail">$0.00</b></div>
+    <div><span>PAR</span><b id="bar-par">$500.00</b></div>
+    <div><span>COST</span><b id="bar-cost">$0.00</b></div>
+    <div class="bar-comm"><span>COMMISSION</span><b id="bar-comm">$0.00</b></div>
+  </div>
+
+  <script src="form-data.js?v=4"></script>
+  <script src="app.js?v=4"></script>
+</body>
+</html>

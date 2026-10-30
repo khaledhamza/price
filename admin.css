@@ -1,0 +1,99 @@
+/* Admin page additions on top of styles.css. */
+[hidden] { display: none !important; }
+.top .top-link { margin-left: auto; color: #fff; font-size: 14px; opacity: .85; }
+.wrap { max-width: 640px; margin: 0 auto; padding: 12px 12px 0; }
+.wrap form { padding: 0; }
+.wrap > .status { margin: 4px 4px 12px; }
+
+.field { display: block; }
+.field > span { display: block; margin-bottom: 6px; }
+.field input, .price input {
+  width: 100%;
+  height: 44px;
+  font-size: 16px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text);
+}
+.check { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+.check input { width: 20px; height: 20px; accent-color: var(--blue); margin: 0; }
+.help { color: var(--muted); font-size: 14px; padding-left: 20px; margin: 0 0 12px; }
+.help a { color: var(--blue); }
+#access .count.ok { background: var(--green); }
+
+.price {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 52px;
+  padding: 4px 0;
+}
+.price > label { flex: 1; min-width: 0; }
+.price .was { display: block; color: var(--muted); font-size: 12px; }
+.price .was:empty { display: none; }
+.money { position: relative; flex: none; width: 128px; }
+.money input { text-align: right; font-variant-numeric: tabular-nums; padding-left: 24px; }
+.money::before {
+  position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+  color: var(--muted); pointer-events: none;
+}
+.money.dollar::before { content: "$"; }
+.money.percent input { padding-left: 12px; padding-right: 28px; }
+.money.percent::after {
+  content: "%"; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--muted);
+}
+.price input.changed { border-color: var(--blue); background: var(--tick); font-weight: 650; }
+.price input[aria-invalid="true"] { border-color: var(--red); }
+.price .error { flex-basis: 100%; }
+.price-row { display: flex; flex-wrap: wrap; }
+
+.review ul { padding-left: 20px; margin: 8px 0 12px; }
+.review li { margin: 4px 0; }
+.review .save { background: var(--blue); }
+.secondary {
+  width: 100%; height: 48px; margin-top: 10px;
+  border: 1px solid var(--line); border-radius: 12px;
+  background: var(--card); color: var(--blue); font-size: 16px; font-weight: 600; cursor: pointer;
+}
+.link-btn {
+  display: block; margin: 12px auto 0; padding: 6px;
+  border: 0; background: none; color: var(--blue); font-size: 14px; text-decoration: underline; cursor: pointer;
+}
+
+.admin-bar { align-items: center; justify-content: space-between; padding-left: 16px; padding-right: 16px; }
+.admin-bar span { display: inline; font-size: 15px; opacity: 1; letter-spacing: 0; }
+.admin-bar button {
+  height: 44px; padding: 0 18px; border: 0; border-radius: 10px;
+  background: var(--red); color: #fff; font-size: 16px; font-weight: 700; cursor: pointer;
+}
+.admin-bar button:disabled { opacity: .45; cursor: default; }
+
+.remove {
+  flex: none; width: 36px; height: 36px; margin-left: 6px;
+  border: 0; border-radius: 8px; background: none; color: var(--muted); font-size: 16px; cursor: pointer;
+}
+.remove:hover { background: var(--tick); color: var(--red); }
+.add-form { border-top: 1px dashed var(--line); margin-top: 8px; padding-top: 10px; }
+.card.add-form { border-top: 1px solid var(--line); margin-top: 0; padding-top: 14px; }
+.add-form input[type=text] {
+  width: 100%; min-width: 0; height: 44px; font-size: 16px; padding: 0 12px; margin-bottom: 8px;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--text);
+}
+.add-line { display: flex; gap: 8px; }
+.add-line input[type=text] { flex: 1; }
+.add-form .money input {
+  width: 100%; height: 44px; font-size: 16px; padding: 0 12px 0 24px; text-align: right;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--text);
+}
+.add-btn {
+  width: 100%; height: 44px; border: 1px dashed var(--blue); border-radius: 10px;
+  background: none; color: var(--blue); font-size: 15px; font-weight: 600; cursor: pointer;
+}
+.link-btn.danger { color: var(--red); }
+.add-form .q-label { margin-bottom: 8px; }
+.money input::-webkit-outer-spin-button,
+.money input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.money input[type=number] { -moz-appearance: textfield; appearance: textfield; }
