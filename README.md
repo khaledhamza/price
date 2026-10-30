@@ -7,7 +7,7 @@ RETAIL / PAR / COST calculations, as a static site for GitHub Pages, plus:
 - **Quantities.** Every picked option gets a Qty stepper (1 to 99); its price counts once per unit.
 - **Commission, live.** Shown on the Quote tab and in the bottom bar (assuming the job sells at retail).
 - **Commission tab.** Enter the price the job actually sold for (above retail is fine) and whether it's paid
-  upfront or financed, to see the commission and how it was worked out.
+  upfront or financed (with an optional down payment), to see the commission and how it was worked out.
 - **Saved sales.** On the Commission tab, enter the sale date (and a customer or note) and tap **Save sale**.
   **My sales** lists every saved sale with its commission, plus totals for this month and all time.
   Sales are kept in that phone's browser only (no server): they don't move between devices, and clearing
@@ -20,8 +20,9 @@ Nothing is emailed or sent anywhere; **CLEAR FORM** just clears the page.
 R = RETAIL from the Quote tab, S = the sold price (R if left empty; it can be above R).
 PAR is the same PAR the Quote tab shows: 65% of R (35% off retail) plus the $500 admin fee.
 
-If the job is **financed**, 5% of S comes off first and the rules below use what's left (N = S − 5%).
-Paid **upfront**, N = S. R and PAR never change.
+If the job is **financed**, 5% of the financed part comes off first and the rules below use what's left.
+The financed part is S minus the **down payment** (D, 0 if none); nothing comes off the down payment:
+N = S − 5% × (S − D). Paid **upfront**, N = S. R and PAR never change.
 
 | N (sold price, after financing) | Commission |
 | --- | --- |
@@ -35,6 +36,8 @@ earned above retail on its own line. On small jobs (retail under about $1,429) P
 Examples:
 - Listed at $10,000, sold at $10,000 upfront: PAR $7,000. 8% × $7,000 = $560, plus 50% × $3,000 = $1,500,
   so **$2,060**. Financed, it is worked out on $9,500: $560 + $1,250 = **$1,810**.
+  Financed with $2,000 down, only $8,000 has 5% off ($400), so it is worked out on $9,600:
+  $560 + $1,300 = **$1,860**.
 - Tankless RO listed at $2,018, sold at $2,500 upfront: PAR $1,811.70. $144.94 + 50% × $688.30 = **$489.09**.
 
 The percentages live in `form-data.js` (`calc` for PAR, `commission` for the rest) and can be changed on the

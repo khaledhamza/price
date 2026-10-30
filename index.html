@@ -60,6 +60,14 @@
             <label><input type="radio" name="payment" value="financed"><span>Financing</span></label>
           </div>
           <p class="sub" id="pay-help"></p>
+          <div id="down-box" hidden>
+            <label class="q-label sold-label" for="down">Down payment</label>
+            <div class="money-input"><span aria-hidden="true">$</span>
+              <input type="text" id="down" inputmode="decimal" autocomplete="off" placeholder="0.00" aria-describedby="down-help down-err">
+            </div>
+            <p class="sub" id="down-help">Paid by the customer upfront. The financing % is not taken off this part.</p>
+            <p class="error" id="down-err"></p>
+          </div>
         </fieldset>
       </section>
 
@@ -108,7 +116,7 @@
     <div class="bar-comm"><span>COMMISSION</span><b id="bar-comm">$0.00</b></div>
   </div>
 
-  <script src="form-data.js?v=6"></script>
-  <script src="app.js?v=7"></script>
+  <script src="form-data.js?v=7"></script>
+  <script src="app.js?v=8"></script>
 </body>
 </html>
